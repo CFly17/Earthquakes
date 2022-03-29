@@ -11,9 +11,45 @@ console.log("working");
     // latitude(40.7) and the second is longitude(-94.5).
     // We set the zoom level of "4" on a scale 0–18.
 // let map = L.map('mapid').setView([37.6213, -122.3790], 5);
+
+// We create the tile layer that will be the background of our map.
+
+// Dark map view: 
+    // let streets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}'
+    let streets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        accessToken: API_KEY
+    });
     
+    // We create the dark view tile layer that will be an option for our map.
+    let dark = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        accessToken: API_KEY
+    });
+
 // Create the map object with center at the San Francisco airport.
-let map = L.map('mapid').setView([37.5, -122.5], 10);
+// let map = L.map('mapid').setView([37.5, -122.5], 10);
+
+// Center of the Earth:
+// let map = L.map('mapid').setView([30, 30], 2);
+
+// Create a base layer that holds both maps.
+let baseMaps = {
+    Street: streets,
+    Dark: dark
+};
+
+// Create the map object with center, zoom level and default layer.
+let map = L.map('mapid', {
+    center: [30, 30],
+    zoom: 2,
+    layers: [streets]
+});
+
+// Pass our map layers into our layers control and add the layers control to the map.
+L.control.layers(baseMaps).addTo(map);
 
 // Add GeoJSON data.
 let sanFranAirport =
@@ -40,13 +76,13 @@ let sanFranAirport =
 // L.geoJSON(sanFranAirport).addTo(map);
 
     // OR
-L.geoJSON(sanFranAirport, {
-    pointToLayer: function(feature, latlng) {
-        console.log(feature);
-        return L.marker(latlng)
-        .bindPopup("<h2>" + feature.properties.city + "</h2>");        
-    }
-}).addTo(map);
+// L.geoJSON(sanFranAirport, {
+//     pointToLayer: function(feature, latlng) {
+//         console.log(feature);
+//         return L.marker(latlng)
+//         .bindPopup("<h2>" + feature.properties.city + "</h2>");        
+//     }
+// }).addTo(map);
 
     // OR
 // L.geoJSON(sanFranAirport, {
@@ -117,15 +153,23 @@ cityData.forEach(function(city) {
 //     fillColor: 'light-yellow'
 //  }).addTo(map);
 
-// We create the tile layer that will be the background of our map.
 
-// Dark map view: 
-    // let streets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}'
-let streets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    accessToken: API_KEY
+
+// Accessing the airport GeoJSON URL (which can be generated directly on GitHub by clicking on a .json file you've pushed and viewed 'raw')
+let airportData = "https://raw.githubusercontent.com/pizzahut111/Earthquakes/main/majorAirports.json";
+
+// Puts markers for all json objects in 'airportData' (here 'data' references 'airportData')
+d3.json(airportData).then(function (data) {
+    console.log(data);
+    // Creating a GeoJSON layer with the retrieved data.
+    L.geoJSON(data)
+        .bindPopup(function (layer) {
+            return layer.feature.properties.name;
+        })
+        .addTo(map);
 });
+
+
 
 // To change the map's style, change the map id
 // using the list of Mapbox ids below:
