@@ -10,7 +10,57 @@ console.log("working");
     // a geographical center, where the first coordinate is 
     // latitude(40.7) and the second is longitude(-94.5).
     // We set the zoom level of "4" on a scale 0–18.
-    let map = L.map('mapid').setView([37.6213, -122.3790], 5);
+// let map = L.map('mapid').setView([37.6213, -122.3790], 5);
+    
+// Create the map object with center at the San Francisco airport.
+let map = L.map('mapid').setView([37.5, -122.5], 10);
+
+// Add GeoJSON data.
+let sanFranAirport =
+{"type":"FeatureCollection","features":[{
+    "type":"Feature",
+    "properties":{
+        "id":"3469",
+        "name":"San Francisco International Airport",
+        "city":"San Francisco",
+        "country":"United States",
+        "faa":"SFO",
+        "icao":"KSFO",
+        "alt":"13",
+        "tz-offset":"-8",
+        "dst":"A",
+        "tz":"America/Los_Angeles"},
+        "geometry":{
+            "type":"Point",
+            "coordinates":[-122.375,37.61899948120117]}}
+]
+};
+
+// Add it to the map:
+// L.geoJSON(sanFranAirport).addTo(map);
+
+    // OR
+L.geoJSON(sanFranAirport, {
+    pointToLayer: function(feature, latlng) {
+        console.log(feature);
+        return L.marker(latlng)
+        .bindPopup("<h2>" + feature.properties.city + "</h2>");        
+    }
+}).addTo(map);
+
+    // OR
+// L.geoJSON(sanFranAirport, {
+//     onEachFeature: function(feature, layer) {
+//         console.log(layer);
+//         layer.bindPopup();       
+//     }
+// }).addTo(map);
+
+// Our options to add data to a marker are to use the
+    // pointToLayer or onEachFeature callback functions. 
+    // For the pointToLayer callback function, we are first going to call a function() 
+    // where we pass each GeoJSON feature and its latitude and longitude.
+    // Then we add a marker for each feature in a return statement.
 
 // Coordinates for each point to be used in the line.
 let line = [
@@ -30,8 +80,6 @@ L.polyline(line, {
 
 //  Add a marker to the map for Los Angeles, California.
 // let marker = L.marker([34.0522, -118.2437]).addTo(map);
-// // Instead of 'marker', add an array containing each city's location, state, and population.
-// ((((We can also add this to another file))))
 
 // // Loop through the cities array and create one marker for each city.
 // cities.forEach(function(city) {
@@ -39,16 +87,12 @@ L.polyline(line, {
 //     L.marker(city.location).addTo(map);
 // });
 
+// // Instead of 'marker', add an array containing each city's location, state, and population.
+// ((((We can also reference 'cities' in another file))))
+
 // Get data from cities.js
 let cityData = cities;
 
-// Loop through the cities array and create one marker for each city.
-// cityData.forEach(function(city) {
-//     console.log(city)
-//     L.marker(city.location).addTo(map);
-// });
-
-// Loop through the cities array and create one marker for each city.
 cityData.forEach(function(city) {
     console.log(city)
     L.circleMarker(city.location, {
@@ -59,6 +103,12 @@ cityData.forEach(function(city) {
     .bindPopup("<h2>" + city.city + ", " + city.state + "</h2> <hr> <h3>Population " + city.population.toLocaleString() + "</h3>")
     .addTo(map);
 });
+
+// Loop through the cities array and create one marker for each city.
+// cityData.forEach(function(city) {
+//     console.log(city)
+//     L.marker(city.location).addTo(map);
+// });
 
 // Add a circle to the map for LA, CA
 // L.circleMarker([34.0522, -118.2437], {
