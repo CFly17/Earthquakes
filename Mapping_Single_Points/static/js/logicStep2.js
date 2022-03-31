@@ -58,10 +58,19 @@ let airportData = "https://raw.githubusercontent.com/pizzahut111/Earthquakes/mai
 // Accessing the Toronto neighborhoods GeoJSON URL.
 let torontoHoods = "https://raw.githubusercontent.com/pizzahut111/Earthquakes/Mapping_GeoJSON_Points/torontoNeighborhoods.json";
 
-// Create a style for the lines.
-let myStyle = {
-    color: "#ffffa1",
-    weight: 2
+// This function returns the style data for each of the earthquakes we plot on
+// the map. We pass the magnitude of the earthquake into a function
+// to calculate the radius.
+function styleInfo(feature) {
+    return {
+      opacity: 1,
+      fillOpacity: 1,
+      fillColor: "#ffae42",
+      color: "#000000",
+      radius: getRadius(),
+      stroke: true,
+      weight: 0.5
+    };
 }
 
 let myStyle2 = {
@@ -69,7 +78,15 @@ let myStyle2 = {
     weight: 1
 }
 
-// Toronto neighborhoods (polygons)
+// This function determines the radius of the earthquake marker based on its magnitude.
+// Earthquakes with a magnitude of 0 will be plotted with a radius of 1.
+function getRadius(magnitude) {
+    if (magnitude === 0) {
+      return 1;
+    }
+    return magnitude * 4;
+  }
+
 d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson").then(function(data) {
     console.log(data);
     L.geoJSON(data, {
@@ -79,6 +96,15 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
         }
     }).addTo(map);
 });
+
+// Creating a GeoJSON layer with the retrieved data.
+L.geoJSON(data, {
+    pointToLayer: function(feature, latlng) {
+                console.log(data);
+                return L.circleMarker(latlng);
+            },
+    style: styleInfo
+}).addTo(map);
 
 // Then we add our 'graymap' tile layer to the map.
 streets.addTo(map);
